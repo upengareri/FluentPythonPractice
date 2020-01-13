@@ -1,0 +1,72 @@
+# Example run: python word_occurence.py README.md
+
+import sys
+import re
+
+WORD_RE = re.compile(r'\w+')
+
+def inefficient_way_of_counting_words():
+    index = {}
+    with open(sys.argv[1]) as f:
+        for line_num, line in enumerate(f, 1):  # enumerate returns line num first
+            for match in WORD_RE.finditer(line):
+                word = match.group()
+                column_num = match.start() + 1
+                location = (line_num, column_num)
+                # inefficient way of updating a dictionary if the key is unknown
+                occurrences = index.get(word, [])
+                occurrences.append(location)
+                index[word] = occurrences
+    return index
+
+def efficient_way_of_counting_words():
+    index = {}
+    with open(sys.argv[1]) as f:
+        for line_num, line in enumerate(f, 1):
+            for match in WORD_RE.finditer(line):
+                word = match.group()
+                column_num = match.start() + 1
+                location = (line_num, column_num)
+                # efficient way of updating dictionary if key is unknown
+                # this will use one look-up in hash table to update the value
+                index.setdefault(word, []).append(location)
+        return index
+
+ineff_index = inefficient_way_of_counting_words()
+eff_index = efficient_way_of_counting_words()
+
+""" ************** NOTE *********************
+the end result of this line
+    my_dict.setdefault(key, []).append(new_value)
+is same as
+    if key not in my_dict:
+        my_dict[key] = []
+    my_dict[key].append(new_value)
+EXCEPT THAT THE LATTER CODE PERFORMS AT LEAST TWO SEARCHES - THREE IF NOT'S FOUND
+- WHILE SETDEFAULT DOES IT ALL IN ONE LOOKUP
+"""
+
+print("---------- INEFFICIENT start-------")
+for word in sorted(ineff_index, key=str.lower):
+    print(word, ineff_index[word])
+
+print("---------- INEFFICIENT end-------")
+print('\n')
+print("---------- EFFICIENT start-------")
+for word in sorted(eff_index, key=str.lower):
+    print(word, eff_index[word])
+print("---------- EFFICIENT end-------")
+
+"""
+LESSONS LEARNED:
+    1. use get() if we just want to read key which may or may not be present in dict
+    2. use setdefault() if we need to update the key which may not exist
+    3. use of finditer() - it gives the matched regex and also provides us with
+       its POSITION i.e. start and end column number of the matched word
+       example:
+        >>> text = "He was carefully disguised but captured quickly by police."
+        >>> for m in re.finditer(r"\w+ly", text):
+        ...     print('%02d-%02d: %s' % (m.start(), m.end(), m.group(0)))
+                07-16: carefully
+                40-47: quickly
+"""
