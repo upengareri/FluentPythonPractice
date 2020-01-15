@@ -19,7 +19,7 @@ def inefficient_way_of_counting_words():
                 index[word] = occurrences
     return index
 
-def efficient_way_of_counting_words():
+def efficient_way_of_counting_words_using_setdefault():
     index = {}
     with open(sys.argv[1]) as f:
         for line_num, line in enumerate(f, 1):
@@ -32,8 +32,21 @@ def efficient_way_of_counting_words():
                 index.setdefault(word, []).append(location)
         return index
 
+def efficient_way_of_counting_words_using_defaultdict():
+    import collections
+    index = collections.defaultdict(list)
+    with open(sys.argv[1]) as f:
+        for line_num, line in enumerate(f, 1):
+            for match in WORD_RE.finditer(line):
+                word = match.group()
+                column_num = match.start() + 1
+                location = (line_num, column_num)
+                index[word].append(location)
+    return index
+
 ineff_index = inefficient_way_of_counting_words()
-eff_index = efficient_way_of_counting_words()
+eff_index_1 = efficient_way_of_counting_words_using_setdefault()
+eff_index_2 = efficient_way_of_counting_words_using_defaultdict()
 
 """ ************** NOTE *********************
 the end result of this line
@@ -52,16 +65,23 @@ for word in sorted(ineff_index, key=str.lower):
 
 print("---------- INEFFICIENT end-------")
 print('\n')
-print("---------- EFFICIENT start-------")
-for word in sorted(eff_index, key=str.lower):
-    print(word, eff_index[word])
-print("---------- EFFICIENT end-------")
+print("---------- EFFICIENT(SETDEFAULT) start-------")
+for word in sorted(eff_index_1, key=str.lower):
+    print(word, eff_index_1[word])
+print("---------- EFFICIENT(SETDEFAULT) end-------")
+print('\n')
+print("---------- EFFICIENT(DEFAULTDICT) start-------")
+for word in sorted(eff_index_2, key=str.lower):
+    print(word, eff_index_2[word])
+print("---------- EFFICIENT(DEFAULTDICT) end-------")
 
 """
 LESSONS LEARNED:
     1. use get() if we just want to read key which may or may not be present in dict
     2. use setdefault() if we need to update the key which may not exist
-    3. use of finditer() - it gives the matched regex and also provides us with
+    3. defaultdict() is another alternative of setdefault when dealing with modifying
+        dictionary whose key may be missing
+    4. use of finditer() - it gives the matched regex and also provides us with
        its POSITION i.e. start and end column number of the matched word
        example:
         >>> text = "He was carefully disguised but captured quickly by police."
