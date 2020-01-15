@@ -90,3 +90,18 @@ LESSONS LEARNED:
                 07-16: carefully
                 40-47: quickly
 """
+
+"""
+A BRIEF OVERVIEW OF DICTIONARY
+1. __getitem__ or the most basic way d[k]
+2. get() for read-only mode of searching key(and its value) which may be missing in dict
+3. setdefault() and collections.defaultdict() for updating keys which may be missing in dict
+4. collections.OrderedDict() for maintaining keys in insertion order
+5. collections.Counter() a mapping that holds integer count for each key. It can be used for
+    example in finding how many occurences of letter say 'u' in my name
+6. from types import MappingProxyType
+    immutable mapping/dictionary so that the user can only update the values of the keys and
+    not add any extra key or modify a key. Example in GPIO pins (e.g rasberry Pi board),
+    the pins of the board couls be used as immutable dict where the user can only change the
+    pins value but not the pin itself which is mapped to the dictionary through key
+"""
